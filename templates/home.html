@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Banglore House Price Prediction</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/frontui.css') }}">
+    <script type="text/javascript">
+		$(window).load(function() {
+			console.log( "document loaded" ); 
+			$.get("{{ url_for('location') }}",
+				function(data, status) {
+				console.log("got response for location request");
+				if(data) {
+					var locations = data;
+					var location_id = document.getElementById("location_id");
+					$('#location_id').empty();
+					for(var i in locations) {
+						var opt = new Option(locations[i]);
+						$('#location_id').append(opt);
+					}
+				}   
+			});
+
+			$.get("{{ url_for('area') }}",
+				function(data, status) {
+				console.log("got response for area request");
+				if(data) {
+					var areatypes = data;
+					var areatype_id = document.getElementById("areatype_id");
+					$('#areatype_id').empty();
+					for(var i in areatypes) {
+						var opt = new Option(areatypes[i]);
+						$('#areatype_id').append(opt);
+					}
+				}
+			});
+		});
+	
+		function getbath() {
+			var bath = document.getElementsByName("bath_id");
+			for(var i in bath) {
+				if(bath[i].checked) {
+					return parseInt(i)+1;
+				}
+			}
+			return -1;
+		}
+  
+		function getbhk() {
+			var bhk = document.getElementsByName("bhk_id");
+			for(var i in bhk) {
+				if(bhk[i].checked) {
+					return parseInt(i)+1;
+				}
+			}
+			return -1; 
+		}
+
+  		function getbalcony() {
+    		var balc = document.getElementsByName("balcony_id");
+    		for(var i in balc) {
+      			if(balc[i].checked) {
+          			return parseInt(i)+1;
+      			}
+			}
+    		return -1;
+  		}
+  
+		function estimate() {
+			console.log("Estimate button clicked");
+			var total_sqft = document.getElementById("totalsqft_id");
+			var bhk = getbhk();
+			var bath = getbath();
+			var balcony = getbalcony();
+			var location = document.getElementById("location_id");
+			var area_type = document.getElementById("areatype_id");
+			var prediction = document.getElementById("prediction_id");
+			
+			$.post("{{url_for('predict') }}", {
+				total_sqft: parseFloat(total_sqft.value),
+				bhk: bhk,
+				bath: bath,
+				balcony:balcony,
+				location: location.value,
+				area_type: area_type.value
+			},function(data, status) {
+				console.log(data);
+				if(data > 0)
+				{
+					prediction.innerHTML = "<h2>" + data.toString() + " Lakh</h2>";
+				}
+				else
+				{
+					prediction.innerHTML = "<h2>" + "Your input data is not practical" + "</h2";
+				}
+				console.log(status);
+			});
+		}
+	</script>
+</head>
+<body>
+<div class="img"></div>
+<form>
+	<div class="container">
+		<h2><span class="heading_font">Looking for homes in Bangalore, Your one stop solution is here!!</span></h2>
+		<div class='description'>
+			<h2><span class="heading_font1">This is a House price prediction Machine Learning Web App, built using Flask server , deployed using Heroku.</span></p>
+		</div>
+	</div>
+	
+	<div>
+	<h2 style="color:white;">Choose Location</h2>
+	<select class="dropdown" name="" id="location_id">
+		<option value="" disabled="disabled" selected="selected">Choose a Location</option>
+	</select>
+
+    <h2 style="color:white;">BHK</h2>
+	<div class="switch-field">
+		<input type="radio" id="radio-bhk-1" name="bhk_id" value="1"/>
+		<label for="radio-bhk-1">1</label>
+		<input type="radio" id="radio-bhk-2" name="bhk_id" value="2" checked/>
+		<label for="radio-bhk-2">2</label>
+		<input type="radio" id="radio-bhk-3" name="bhk_id" value="3"/>
+		<label for="radio-bhk-3">3</label>
+		<input type="radio" id="radio-bhk-4" name="bhk_id" value="4"/>
+		<label for="radio-bhk-4">4</label>
+		<input type="radio" id="radio-bhk-5" name="bhk_id" value="5"/>
+		<label for="radio-bhk-5">5</label>
+	</div>
+	</div>
+
+	<h2 style="color:white;">Total Square Feet</h2>
+	<input class="text_input"  id="totalsqft_id" class="floatLabel" name="total_sqft" value="1000">
+
+	<h2 style="color:white;">Choose area type</h2>
+	<select class="dropdown" name="" id="areatype_id">
+		<option value="" disabled="disabled" selected="selected">Choose an Area Type</option>
+	</select>
+
+    <h2 style="color:white;">Bath</h2>
+	<div class="switch-field">
+		<input type="radio" id="radio-bath-1" name="bath_id" value="1"/>
+		<label for="radio-bath-1">1</label>
+		<input type="radio" id="radio-bath-2" name="bath_id" value="2" checked/>
+		<label for="radio-bath-2">2</label>
+		<input type="radio" id="radio-bath-3" name="bath_id" value="3"/>
+		<label for="radio-bath-3">3</label>
+		<input type="radio" id="radio-bath-4" name="bath_id" value="4"/>
+		<label for="radio-bath-4">4</label>
+		<input type="radio" id="radio-bath-5" name="bath_id" value="5"/>
+		<label for="radio-bath-5">5</label>
+	</div>
+
+    <h2 style="color: white;">Balcony</h2>
+	<div class="switch-field">
+		<input type="radio" id="radio-balc-1" name="balcony_id" value="1"/>
+		<label for="radio-balc-1">1</label>
+		<input type="radio" id="radio-balc-2" name="balcony_id" value="2" checked/>
+		<label for="radio-balc-2">2</label>
+		<input type="radio" id="radio-balc-3" name="balcony_id" value="3"/>
+		<label for="radio-balc-3">3</label>
+		<input type="radio" id="radio-balc-4" name="balcony_id" value="4"/>
+		<label for="radio-balc-4">4</label>
+		<input type="radio" id="radio-balc-5" name="balcony_id" value="5"/>
+		<label for="radio-balc-5">5</label>
+	</div>
+
+	<button class="submit" onclick="estimate()" type="button">Estimate Price</button>  
+
+	<div id="prediction_id" class="submit">	<h2></h2> </div>
+
+	<div class='footer'>
+		<div class="contact">
+			<a target="_blank" href="https://github.com/babai95/Bangalore_house_price_prediction_end_to_end_with_Deployment"><i class="fa fa-github" style="font-size:36px"></i></a>
+			<a target="_blank" href="https://www.linkedin.com/in/sayantan-gupta-779a23125/"><i class="fa fa-linkedin-square" style="font-size:36px"></i></a>
+		</div>
+		<h2><span class="heading_font">Made with ❤️ by Sayantan Gupta.</span></h2>
+	</div>
+</form>	
+
+</body>
+</html>
